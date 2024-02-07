@@ -7,30 +7,27 @@ import sys
 import boto3
 import os
 
-
 def main():
     args = sys.argv
     #check arguemtns length is correct
-    if(len(args) != 2):
+    if(len(args) != 3):
         sys.exit("Error: Improper arguemnts passed.")
 
-    #parse string from arguemnts
-    args = args.split(' ')
-    local_path = args[0]
-    args = args[1].split('::')
+    #parse variables from arguemnts
+    local_path = args[1]
+    args = args[2].split('::')
     bucket_path = args[0]
-    cloud_path = [1]
+    cloud_path = args[1]
 
     #check for empty arguemnts
     if(local_path == "" or bucket_path == "" or cloud_path == ""):  
         sys.exit("Error: Improper arguemnts passed.")
 
-    #print paths
-    print(f"local path: {local_path}")
-    print(f"bucket: {bucket_path}")
-    print(f"cloud path: {cloud_path}")
 
 
+#start from main
+if __name__ == "__main__":
+    main()
 
 #recursivly backup to aws
 def backup(local_path, bucket_name, cloud_path):
