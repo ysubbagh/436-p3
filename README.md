@@ -1,3 +1,5 @@
+<!> must install boto3
+
 to compile backup ->
 python3 backup.py bucket-name::directory-name directory-name
 
