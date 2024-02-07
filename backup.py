@@ -23,11 +23,13 @@ def main():
     if(local_path == "" or bucket_path == "" or cloud_path == ""):  
         sys.exit("Error: Improper arguemnts passed.")
 
-
+    #send to restore function
+    backup(local_path, bucket_path, cloud_path)
 
 #start from main
 if __name__ == "__main__":
     main()
+
 
 #recursivly backup to aws
 def backup(local_path, bucket_name, cloud_path):
@@ -37,6 +39,7 @@ def backup(local_path, bucket_name, cloud_path):
     #check to see if bucket exists, create if not
     try:
         resp = client.head_bucket(Bucket = bucket_name)
+        print(f"Bucket {bucket_name} exists")
     except client.exceptions.ClientError as e:
         if e.response['Error']['Code'] == '404': #if bucket doesnt already exist, create it
             try:

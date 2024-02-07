@@ -1,5 +1,5 @@
 #
-# backup -- p3. css436
+# restore -- p3. css436
 # Author: Yasmine Subbagh
 #
 
@@ -7,19 +7,17 @@ import sys
 import boto3
 import os
 
-
 def main():
     args = sys.argv
     #check arguemtns length is correct
-    if(len(args) != 2):
+    if(len(args) != 3):
         sys.exit("Error: Improper arguemnts passed.")
 
-    #parse string from arguemnts
-    args = args.split(' ')
+    #parse variables from arguemnts
     local_path = args[1]
-    args = args[0].split('::')
+    args = args[2].split('::')
     bucket_path = args[0]
-    cloud_path = [1]
+    cloud_path = args[1]
 
     #check for empty arguemnts
     if(local_path == "" or bucket_path == "" or cloud_path == ""):  
@@ -27,9 +25,15 @@ def main():
 
 
 
+#start from main
+if __name__ == "__main__":
+    main()
+
 #recursivly backup to aws
-def restore():
+def backup(local_path, bucket_name, cloud_path):
     #connect to s3
     client = boto3.client('s3')
 
+
+    
 
