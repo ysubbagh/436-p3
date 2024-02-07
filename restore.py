@@ -7,6 +7,17 @@ import sys
 import boto3
 import os
 
+#recursivly restore from aws to local computer
+def restore(local_path, bucket_name, cloud_path):
+    #connect to s3
+    client = boto3.client('s3')
+
+    #test parsing
+    print(f"local path: {local_path}")
+    print(f"bucket name: {bucket_name}")
+    print(f"cloud path: {cloud_path}")
+
+
 def main():
     args = sys.argv
     #check arguemtns length is correct
@@ -14,8 +25,8 @@ def main():
         sys.exit("Error: Improper arguemnts passed.")
 
     #parse variables from arguemnts
-    local_path = args[1]
-    args = args[2].split('::')
+    local_path = args[2]
+    args = args[1].split('::')
     bucket_path = args[0]
     cloud_path = args[1]
 
@@ -23,17 +34,10 @@ def main():
     if(local_path == "" or bucket_path == "" or cloud_path == ""):  
         sys.exit("Error: Improper arguemnts passed.")
 
-
+    #send to restore function
+    restore(local_path, bucket_path, cloud_path)
 
 #start from main
 if __name__ == "__main__":
     main()
-
-#recursivly backup to aws
-def backup(local_path, bucket_name, cloud_path):
-    #connect to s3
-    client = boto3.client('s3')
-
-
-    
 

@@ -11,6 +11,7 @@ import os
 def backup(local_path, bucket_name, cloud_path):
     #connect to s3
     client = boto3.client('s3')
+    s3 = boto3.resource('s3')
 
     #check to see if bucket exists, create if not
     try:
@@ -20,8 +21,15 @@ def backup(local_path, bucket_name, cloud_path):
         if e.response['Error']['Code'] == '404': #if bucket doesnt already exist, create it
             try:
                 create = client.create_bucket(Bucket = bucket_name)
+                print(f"bucket {bucket_name} created")
             except Exception as e:
-                sys.exit("Error: Couldn't create bucket.")
+                sys.exit("Error: Couldn't create/access bucket.")
+
+    #upload files
+    for (root, dirs, file) in os.walk(local_path):
+        for f in file:
+            s3.Bucket(bucket_name).upload_file(local_path, cloud_path)
+    
 
 
 def main():
