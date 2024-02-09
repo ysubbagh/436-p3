@@ -6,12 +6,12 @@
 import sys
 import boto3
 import os
+from datetime import datetime
 
 #recursivly backup to aws
 def backup(local_path, bucket_name, cloud_path):
-    #connect to s3
+    #connect to s3 (AWS)
     client = boto3.client('s3')
-    s3 = boto3.resource('s3')
 
     #check to see if bucket exists, create if not
     try:
@@ -26,12 +26,30 @@ def backup(local_path, bucket_name, cloud_path):
                 sys.exit("Error: Couldn't create/access bucket.")
 
     #upload files
-    for (root, dirs, file) in os.walk(local_path):
-        for f in file:
-            s3.Bucket(bucket_name).upload_file(local_path, cloud_path)
+    for (root, dirs, files) in os.walk(local_path):
+        for file in files:
+            #get path and cloud path key
+            file_path = os.path.join(root, file)
+            cloud_key = file_path[len(local_path) + 1:]
+
+            #get last modified time to ensure no duplicate copying
+            local_mod_date = datetime.fromtimestamp(os.path.getmtime(file_path))
+
+            #see if item already exists
+            try:
+                item = client.head_object(Bucket = bucket_name, Key = cloud_key)
+                cloud_mod_date = item['LastModified'].replace(tzinfo = None)
+            except client.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == '404':
+                    pass    
+                else:
+                    raise
+
+            client.upload_file(file_path, bucket_name, cloud_key)
+            print(f"Uploaded {file_path} to S3 bucket {bucket_name} as {cloud_key}")
+            
     
-
-
+#main function to initiate/call the backup
 def main():
     args = sys.argv
     #check arguemtns length is correct
