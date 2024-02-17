@@ -8,22 +8,30 @@ import boto3
 import os
 from datetime import datetime
 
+#check if the bucket exists
+def check_bucket_exists(bucket_name):
+    client = boto3.client('s3')
+    response = client.list_buckets()
+    for bucket in response['Buckets']:
+        if bucket['Name'] == bucket_name:
+            return True
+    return False
+
 #recursivly backup to aws
 def backup(local_path, bucket_name, cloud_path):
     #connect to s3 (AWS)
     client = boto3.client('s3')
+    #get credientials 
+    region = client.meta.region_name
+    location = {'LocationConstraint': region}
 
-    #check to see if bucket exists, create if not
-    try:
-        resp = client.head_bucket(Bucket = bucket_name)
-        print(f"Backing up to {bucket_name}")
-    except client.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == '404': #if bucket doesnt already exist, create it
-            try:
-                create = client.create_bucket(Bucket = bucket_name)
-                print(f"bucket {bucket_name} created")
-            except Exception as e:
-                sys.exit("Error: Couldn't create/access bucket.")
+    #check to see if bucket exists, if not, create
+    if not check_bucket_exists(bucket_name):
+        client.create_bucket(Bucket = bucket_name, CreateBucketConfiguration=location)
+        print(f"Bucket {bucket_name} created")
+    
+    client.head_bucket(Bucket = bucket_name)
+    print(f"Backing up to {bucket_name}")
 
     #upload files
     for (root, dirs, files) in os.walk(local_path):
