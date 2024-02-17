@@ -16,7 +16,7 @@ def backup(local_path, bucket_name, cloud_path):
     #check to see if bucket exists, create if not
     try:
         resp = client.head_bucket(Bucket = bucket_name)
-        print(f"Bucket {bucket_name} exists")
+        print(f"Backing up to {bucket_name}")
     except client.exceptions.ClientError as e:
         if e.response['Error']['Code'] == '404': #if bucket doesnt already exist, create it
             try:
@@ -46,7 +46,7 @@ def backup(local_path, bucket_name, cloud_path):
                     raise
 
             client.upload_file(file_path, bucket_name, cloud_key)
-            print(f"Uploaded {file_path} to S3 bucket {bucket_name} as {cloud_key}")
+            print(f"Uploaded {file_path}")
             
     
 #main function to initiate/call the backup
