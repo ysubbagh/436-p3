@@ -27,12 +27,17 @@ def restore(local_path, bucket_name, cloud_path):
         return
 
     response = client.list_objects_v2(Bucket = bucket_name, Prefix = cloud_path)
+    
+    for obj in response.get('Contents', []):
+        #get file path
+        key = obj['Key']
+        file_local_path = os.path.join(local_path, os.path.relpath(key, cloud_path))
+        os.makedirs(os.path.dirname(file_local_path), exist_ok=True)
 
-    #test parsing
-    print(f"local path: {local_path}")
-    print(f"bucket name: {bucket_name}")
-    print(f"cloud path: {cloud_path}")
-
+        #dowonload
+        client.download_file(bucket_name, key, file_local_path)
+        print(f"Restored {file_local_path}")
+        
 
 def main():
     args = sys.argv
@@ -56,4 +61,3 @@ def main():
 #start from main
 if __name__ == "__main__":
     main()
-
