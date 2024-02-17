@@ -17,6 +17,11 @@ def check_bucket_exists(bucket_name):
             return True
     return False
 
+#check to see if it is a empty direcotry, true is empty
+def is_directory_empty(directory_path):
+    content = os.listdir(directory_path)
+    return len(content) == 0
+
 #recursivly backup to aws
 def backup(local_path, bucket_name, cloud_path):
     #connect to s3 (AWS)
@@ -35,10 +40,19 @@ def backup(local_path, bucket_name, cloud_path):
 
     #upload files
     for (root, dirs, files) in os.walk(local_path):
+        for directory in dirs:
+            dir_path = os.path.join(root, directory)
+            if is_directory_empty(dir_path):
+                cloud_dir_path = os.walk.join(cloud_path, os.path.relpath(dir_path, local_path))
+                empty_file_path = '.empty'  # Hidden file name
+                client.put_object(Bucket=bucket_name, Key=os.path.join(cloud_path, empty_file_path), Body=b'')
+
         for file in files:
+            if file == '.DS_Store':
+                continue
             #get path and cloud path key
             file_path = os.path.join(root, file)
-            cloud_key = file_path[len(local_path) + 1:]
+            cloud_key = os.path.join(cloud_path, os.path.relpath(file_path, local_path))
 
             #get last modified time to ensure no duplicate copying
             local_mod_date = datetime.fromtimestamp(os.path.getmtime(file_path))
@@ -80,7 +94,3 @@ def main():
 #start from main
 if __name__ == "__main__":
     main()
-
-
-    
-
