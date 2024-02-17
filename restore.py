@@ -7,10 +7,26 @@ import sys
 import boto3
 import os
 
-#recursivly restore from aws to local computer
+#check if the bucket exists
+def check_bucket_exists(bucket_name):
+    client = boto3.client('s3')
+    response = client.list_buckets()
+    for bucket in response['Buckets']:
+        if bucket['Name'] == bucket_name:
+            return True
+    return False
+
+#restore from aws to local computer
 def restore(local_path, bucket_name, cloud_path):
     #connect to s3
     client = boto3.client('s3')
+
+    #check to see if bucket exists, if not, create
+    if not check_bucket_exists(bucket_name):
+        print(f"Bucket {bucket_name} does not exist.")
+        return
+
+    response = client.list_objects_v2(Bucket = bucket_name, Prefix = cloud_path)
 
     #test parsing
     print(f"local path: {local_path}")
